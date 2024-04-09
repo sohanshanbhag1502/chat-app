@@ -1,61 +1,89 @@
 package main
 
 import (
-	"fmt"
-	"net"
-	str "strings"
+	"bufio"
 	"bytes"
 	"encoding/gob"
+	"fmt"
+	"net"
+	"os"
 )
 
-
-func main(){
-
+func main() {
 	conn, err := net.Dial("tcp", "localhost:8080")
-	if (err!=nil){
-		fmt.Println(err)
-		return
-	}else{
-		fmt.Println("Connected to localhost:8080")
-	}
 
-	
-	name :=""
-	fmt.Println("Enter your name: ")
-	fmt.Scanf("%s", &name)
-
-	name_with :=""
-	fmt.Println("Enter the Recipent Name: ")
-	fmt.Scanf("%s", &name_with)
-
-
-	_, err=conn.Write([]byte(name+"-"+name_with))
-
-	if (err!=nil){
-		fmt.Println(err)
+	if err != nil {
+		fmt.Println("Error connecting to server:", err)
 		return
 	}
-	
-	fmt.Println("Connected to ", name_with)
+	defer conn.Close()
 
-	buffer := new(bytes.Buffer);
+	fmt.Println("Connected to localhost:5000")
 
+	reader := bufio.NewReader(os.Stdin)
+	name := ""
+	fmt.Print("Enter your name: ")
+	fmt.Scanln(&name) 
+	recipient := ""
+	fmt.Print("Enter the Recipient's Name: ")
+	fmt.Scanln(&recipient)
+
+	_, err = conn.Write([]byte(name + "-" + recipient))
+	if err != nil {
+		fmt.Println("Error sending name:", err)
+		return
+	}
+
+	fmt.Println("Connected to", recipient)
+	fmt.Println("Type 'exit' to quit")
+
+	buffer := new(bytes.Buffer)
+	buffer_out := new(bytes.Buffer)
 	encoder := gob.NewEncoder(buffer)
+	decoder := gob.NewDecoder(buffer_out)
 
-	message := ""
+	go func() {
+		for {
+			var msg []string
+			buf := make([]byte, 2048)
+			_, err := conn.Read(buf)
+			if err != nil {
+				fmt.Println("Error decoding message:", err)
+			}
+			buffer_out.Write(buf)
+			err = decoder.Decode(&msg)
+			if err != nil {
+				fmt.Println("Error decoding message:", err)
 
-	for{fmt.Println("Enter your message: ")
-	fmt.Scanf("%s",&message)
+			}
+			if msg[1] == "CLIENT_NOT_CONN" {
+				fmt.Println("Recipient client not connected.")
 
-	if (message == "exit"){
-		break
+			}
+			fmt.Printf("%s : %s \n", recipient, msg[0])
+		}
+	}()
+
+	for {
+
+		message, _ := reader.ReadString('\n')
+
+		if message == "exit" {
+			err := encoder.Encode([]string{"", "CLOSE"})
+			if err != nil {
+				fmt.Println("Error encoding message:", err)
+			}
+			break
+		}
+
+		err := encoder.Encode([]string{message, ""})
+
+		if err != nil {
+			fmt.Println("Error encoding message:", err)
+			break
+		}
+		conn.Write(buffer.Bytes())
+		fmt.Println("You : ", message)
+
 	}
-
-	encoder.Encode(message)
-	conn.Write(buffer.Bytes())
-
-	}
-
-	conn.Close()
-
 }
