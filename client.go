@@ -58,7 +58,7 @@ func main() {
 	}
 
 	fmt.Println("Connected to", recipient)
-	fmt.Println("Type 'exit' to quit")
+	fmt.Println("Press Ctrl+C to quit")
 
 	go func() {
 		for {
@@ -96,23 +96,7 @@ func main() {
 		var message string = ""
 		message, _ = reader.ReadString('\n')
 		message = str.Trim(message, "\n")
-
-		if message == "exit" {
-			conn.Write(Serialize(Message{Msg: "", Info: "CLOSE"}))
-			break
-		}
 		conn.Write(Serialize(Message{Msg: message, Info: ""}))
 	}
 
 }
-
-// func init() {
-//     c := make(chan os.Signal)
-//     signal.Notify(c, os.Interrupt, syscall.SIGTERM)
-//     go func() {
-//         <-c
-//         fmt.Println("\nExiting...")
-// 		conn.Write(Serialize(Message{Msg:"", Info: "CLOSE"}))
-//         os.Exit(1)
-//     }()
-// }

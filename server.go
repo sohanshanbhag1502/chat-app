@@ -48,7 +48,7 @@ func main() {
 			hosts[1] = str.Trim(hosts[1], " ")
 			client = Client{self: hosts[0], conn: conn, other: hosts[1]}
 			clients[hosts[0]] = client
-			fmt.Println("Accepted Connection from ", hosts[0])
+			fmt.Println("Accepted Connection from", hosts[0])
 		}
 
 		go handleClient(client)
@@ -86,6 +86,11 @@ func handleClient(client Client) {
 		if err != nil {
 			fmt.Println(err)
 			return
+		} else if msg.Info == "CLOSE" {
+			fmt.Println("Closed Connection from", client.self)
+			delete(clients, client.self)
+			client.conn.Close()
+			return
 		} else if !exists {
 			if len(msgchan) != 10 {
 				msgchan <- msg.Msg
@@ -96,10 +101,6 @@ func handleClient(client Client) {
 					return
 				}
 			}
-		} else if msg.Info == "CLOSE" {
-			fmt.Print(msg)
-			delete(clients, client.self)
-			client.conn.Close()
 		} else {
 			otherconn := value.conn
 			for len(msgchan) != 0 {
