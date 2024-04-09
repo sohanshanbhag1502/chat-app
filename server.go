@@ -9,6 +9,7 @@ import (
 )
 
 type Client struct{
+	self string
 	conn net.Conn
 	other string
 }
@@ -40,7 +41,7 @@ func main(){
 			continue
 		}else{
 			hosts:=str.Split(string(buf), "-")
-			client=Client{conn:conn, other:hosts[1]}
+			client=Client{self:hosts[0], conn:conn, other:hosts[1]}
 			clients[hosts[0]]=client
 			fmt.Println("Accepted Connection from ", hosts[0])
 		}
@@ -84,6 +85,9 @@ func handleClient(client Client){
 					return
 				}
 			}
+		}else if (msg[1]=="CLOSE"){
+			delete(clients, client.self)
+			client.conn.Close()
 		}else{
 			otherconn:=value.conn
 			for (len(msgchan)!=0){
@@ -96,6 +100,12 @@ func handleClient(client Client){
 			}
 			encoder.Encode([]string{msg[0], ""})
 			_, err:=otherconn.Write(msgoutbuf.Bytes())
+			if (err!=nil){
+				fmt.Println(err)
+				return
+			}
+			encoder.Encode([]string{"", "SUCCESS"})
+			_, err=client.conn.Write(msgoutbuf.Bytes())
 			if (err!=nil){
 				fmt.Println(err)
 				return
