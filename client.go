@@ -16,7 +16,6 @@ func Serialize(msg Message) []byte {
 	if (err!=nil){
 		fmt.Println(err)
 	}
-	fmt.Println(b)
 	return b
 }
 
@@ -65,8 +64,6 @@ func main() {
 				fmt.Println("Error decoding message:", err)
 			}
 			msg=DeSerialize(buf[:recv_len])
-			fmt.Println(msg)
-			break
 			if msg.Info == "CLIENT_NOT_CONN" {
 				fmt.Println("Recipient client not connected.")
 			}else if msg.Info=="SUCCESS"{

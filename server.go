@@ -58,17 +58,15 @@ func Serialize(msg Message) []byte {
 	if (err!=nil){
 		fmt.Println(err)
 	}
-	fmt.Println(b)
 	return b
 }
 
 func DeSerialize(obj []byte) Message{
 	var msg=Message{}
-	fmt.Println(string(obj))
-	// err:=json.Unmarshal(obj, &msg)
-	// if (err!=nil){
-	// 	fmt.Println(err)
-	// }
+	err:=json.Unmarshal(obj, &msg)
+	if (err!=nil){
+		fmt.Println(err)
+	}
 	return msg
 } 
 
@@ -78,10 +76,9 @@ func handleClient(client Client){
 	msgchan:=make(chan string, 10)
 
 	for{
-		buf:=make([]byte, 0, 2048)
+		buf:=make([]byte, 2048)
 		recv_len, err:=client.conn.Read(buf)
 		msg:=DeSerialize(buf[:recv_len])
-		fmt.Println(msg)
 
 		value, exists:=clients[client.other]
 
@@ -89,7 +86,7 @@ func handleClient(client Client){
 			fmt.Println(err)
 			return
 		}else if (!exists){
-			if (len(msgchan)==10){
+			if (len(msgchan)!=10){
 				msgchan<-msg.Msg
 			}else{
 				_, err:=client.conn.Write(Serialize(Message{Msg:"",Info:"CLIENT_NOT_CONN"}))
