@@ -1,16 +1,36 @@
 package main
 
 import (
-	"bufio"
-	"bytes"
-	"encoding/gob"
 	"fmt"
 	"net"
-	"os"
+	"encoding/json"
 )
 
+type Message struct{
+	Msg string `json:"Msg"`
+	Info string `json:"Info"`
+}
+
+func Serialize(msg Message) []byte {
+	b, err:=json.Marshal(msg)
+	if (err!=nil){
+		fmt.Println(err)
+	}
+	fmt.Println(b)
+	return b
+}
+
+func DeSerialize(obj []byte) Message{
+	var msg=Message{}
+	err:=json.Unmarshal(obj, &msg)
+	if (err!=nil){
+		fmt.Println(err)
+	}
+	return msg
+} 
+
 func main() {
-	conn, err := net.Dial("tcp", "localhost:8080")
+	conn, err := net.Dial("tcp", "localhost:5000")
 
 	if err != nil {
 		fmt.Println("Error connecting to server:", err)
@@ -20,7 +40,6 @@ func main() {
 
 	fmt.Println("Connected to localhost:5000")
 
-	reader := bufio.NewReader(os.Stdin)
 	name := ""
 	fmt.Print("Enter your name: ")
 	fmt.Scanln(&name) 
@@ -37,53 +56,36 @@ func main() {
 	fmt.Println("Connected to", recipient)
 	fmt.Println("Type 'exit' to quit")
 
-	buffer := new(bytes.Buffer)
-	buffer_out := new(bytes.Buffer)
-	encoder := gob.NewEncoder(buffer)
-	decoder := gob.NewDecoder(buffer_out)
-
 	go func() {
 		for {
-			var msg []string
+			var msg Message=Message{}
 			buf := make([]byte, 2048)
-			_, err := conn.Read(buf)
+			recv_len, err := conn.Read(buf)
 			if err != nil {
 				fmt.Println("Error decoding message:", err)
 			}
-			buffer_out.Write(buf)
-			err = decoder.Decode(&msg)
-			if err != nil {
-				fmt.Println("Error decoding message:", err)
-
-			}
-			if msg[1] == "CLIENT_NOT_CONN" {
+			msg=DeSerialize(buf[:recv_len])
+			fmt.Println(msg)
+			break
+			if msg.Info == "CLIENT_NOT_CONN" {
 				fmt.Println("Recipient client not connected.")
-
+			}else if msg.Info=="SUCCESS"{
+				continue
+			}else{
+				fmt.Printf("%s : %s \n", recipient, msg.Msg)
 			}
-			fmt.Printf("%s : %s \n", recipient, msg[0])
 		}
 	}()
 
 	for {
-
-		message, _ := reader.ReadString('\n')
+		var message string=""
+		fmt.Scanln(&message)
 
 		if message == "exit" {
-			err := encoder.Encode([]string{"", "CLOSE"})
-			if err != nil {
-				fmt.Println("Error encoding message:", err)
-			}
+			conn.Write(Serialize(Message{Msg:"", Info: "CLOSE"}))
 			break
 		}
-
-		err := encoder.Encode([]string{message, ""})
-
-		if err != nil {
-			fmt.Println("Error encoding message:", err)
-			break
-		}
-		conn.Write(buffer.Bytes())
+		conn.Write(Serialize(Message{Msg:message, Info:""}))
 		fmt.Println("You : ", message)
-
 	}
 }

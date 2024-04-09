@@ -4,14 +4,18 @@ import (
 	"fmt"
 	"net"
 	str "strings"
-	"bytes"
-	"encoding/gob"
+	"encoding/json"
 )
 
 type Client struct{
 	self string
 	conn net.Conn
 	other string
+}
+
+type Message struct{
+	Msg string `json:"Msg"`
+	Info string `json:"Info"`
 }
 
 var clients = make(map[string]Client)
@@ -25,8 +29,6 @@ func main(){
 		fmt.Println("Server listening on localhost:5000")
 	}
 
-	buf:=make([]byte, 2048)
-
 	for{
 		conn, err := ln.Accept()
 		if (err!=nil){
@@ -34,6 +36,7 @@ func main(){
 			continue
 		}
 
+		buf:=make([]byte, 2048)
 		_, err=conn.Read(buf)
 		var client Client
 		if (err!=nil){
@@ -50,24 +53,35 @@ func main(){
 	}
 }
 
+func Serialize(msg Message) []byte {
+	b, err:=json.Marshal(msg)
+	if (err!=nil){
+		fmt.Println(err)
+	}
+	fmt.Println(b)
+	return b
+}
+
+func DeSerialize(obj []byte) Message{
+	var msg=Message{}
+	fmt.Println(string(obj))
+	// err:=json.Unmarshal(obj, &msg)
+	// if (err!=nil){
+	// 	fmt.Println(err)
+	// }
+	return msg
+} 
+
 func handleClient(client Client){
 	defer client.conn.Close()
 
 	msgchan:=make(chan string, 10)
 
-	msgoutbuf:=new(bytes.Buffer)
-	encoder:=gob.NewEncoder(msgoutbuf)
-
-	msginbuf:=new(bytes.Buffer)
-	decoder:=gob.NewDecoder(msginbuf)
-
 	for{
-		buf:=make([]byte, 2048)
-		_, err:=client.conn.Read(buf)
-		msginbuf.Write(buf)
-
-		var msg []string
-		decoder.Decode(&msg)
+		buf:=make([]byte, 0, 2048)
+		recv_len, err:=client.conn.Read(buf)
+		msg:=DeSerialize(buf[:recv_len])
+		fmt.Println(msg)
 
 		value, exists:=clients[client.other]
 
@@ -76,36 +90,32 @@ func handleClient(client Client){
 			return
 		}else if (!exists){
 			if (len(msgchan)==10){
-				msgchan<-msg[0]
+				msgchan<-msg.Msg
 			}else{
-				encoder.Encode([]string{"","CLIENT_NOT_CONN"})
-				_, err:=client.conn.Write(msgoutbuf.Bytes())
+				_, err:=client.conn.Write(Serialize(Message{Msg:"",Info:"CLIENT_NOT_CONN"}))
 				if (err!=nil){
 					fmt.Println(err)
 					return
 				}
 			}
-		}else if (msg[1]=="CLOSE"){
+		}else if (msg.Info=="CLOSE"){
 			delete(clients, client.self)
 			client.conn.Close()
 		}else{
 			otherconn:=value.conn
 			for (len(msgchan)!=0){
-				encoder.Encode([]string{<-msgchan, ""})
-				_, err:=otherconn.Write(msgoutbuf.Bytes())
+				_, err:=otherconn.Write(Serialize(Message{Msg:<-msgchan,Info:""}))
 				if (err!=nil){
 					fmt.Println(err)
 					return
 				}
 			}
-			encoder.Encode([]string{msg[0], ""})
-			_, err:=otherconn.Write(msgoutbuf.Bytes())
+			_, err:=otherconn.Write(Serialize(msg))
 			if (err!=nil){
 				fmt.Println(err)
 				return
 			}
-			encoder.Encode([]string{"", "SUCCESS"})
-			_, err=client.conn.Write(msgoutbuf.Bytes())
+			_, err=client.conn.Write(Serialize(Message{Msg:"", Info:"SUCCESS"}))
 			if (err!=nil){
 				fmt.Println(err)
 				return
