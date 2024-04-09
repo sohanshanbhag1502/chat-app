@@ -37,13 +37,15 @@ func main(){
 		}
 
 		buf:=make([]byte, 2048)
-		_, err=conn.Read(buf)
+		recv_len, err:=conn.Read(buf)
 		var client Client
 		if (err!=nil){
 			fmt.Println(err)
 			continue
 		}else{
-			hosts:=str.Split(string(buf), "-")
+			hosts:=str.Split(string(buf[:recv_len]), "-")
+			hosts[0]=str.Trim(hosts[0], " ")
+			hosts[1]=str.Trim(hosts[1], " ")
 			client=Client{self:hosts[0], conn:conn, other:hosts[1]}
 			clients[hosts[0]]=client
 			fmt.Println("Accepted Connection from ", hosts[0])
@@ -81,7 +83,6 @@ func handleClient(client Client){
 		msg:=DeSerialize(buf[:recv_len])
 
 		value, exists:=clients[client.other]
-
 		if (err!=nil){
 			fmt.Println(err)
 			return

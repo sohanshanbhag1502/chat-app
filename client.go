@@ -1,9 +1,12 @@
 package main
 
 import (
+	"bufio"
+	"encoding/json"
 	"fmt"
 	"net"
-	"encoding/json"
+	"os"
+	str "strings"
 )
 
 type Message struct{
@@ -69,20 +72,24 @@ func main() {
 			}else if msg.Info=="SUCCESS"{
 				continue
 			}else{
-				fmt.Printf("%s : %s \n", recipient, msg.Msg)
+				fmt.Printf("\b\b\b\b\b\b")
+				fmt.Printf("%s : %s\n", recipient, msg.Msg)
+				fmt.Printf("You : ")
 			}
 		}
 	}()
 
 	for {
+		reader:=bufio.NewReader(os.Stdin)
+		fmt.Printf("You : ")
 		var message string=""
-		fmt.Scanln(&message)
+		message, _ = reader.ReadString('\n')
+		message=str.Trim(message, "\n")
 
 		if message == "exit" {
 			conn.Write(Serialize(Message{Msg:"", Info: "CLOSE"}))
 			break
 		}
 		conn.Write(Serialize(Message{Msg:message, Info:""}))
-		fmt.Println("You : ", message)
 	}
 }
