@@ -14,7 +14,7 @@ type Client struct{
 	other string
 }
 
-var clients map[string]Client
+var clients = make(map[string]Client)
 
 func main(){
 	ln, err := net.Listen("tcp", "localhost:8080")
