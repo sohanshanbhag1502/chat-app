@@ -9,6 +9,8 @@ import (
 	"os/signal"
 	str "strings"
 	"syscall"
+	"time"
+	"github.com/TwiN/go-color"
 )
 
 type Message struct {
@@ -74,9 +76,11 @@ func main() {
 			} else if msg.Info == "SUCCESS" {
 				continue
 			} else {
-				fmt.Printf("\b\b\b\b\b\b")
-				fmt.Printf("%s : %s\n", recipient, msg.Msg)
-				fmt.Printf("You : ")
+				// fmt.Printf("\b\b\b\b\b\b\b\b\b\b\b\b\b")
+				fmt.Printf("\b\b\b\b\b")
+				fmt.Printf(color.Colorize(color.Red, time.Now().Format("15:04:05"))+"- "+color.Colorize(color.Yellow, recipient)+": %s\n", msg.Msg)
+				fmt.Printf(color.Colorize(color.Green, "You: "))
+				// fmt.Printf("%s You: ", time.Now().Format("15:04:05"))
 			}
 		}
 	}()
@@ -92,7 +96,8 @@ func main() {
 
 	for {
 		reader := bufio.NewReader(os.Stdin)
-		fmt.Printf("You : ")
+		// fmt.Printf("%s You: ", time.Now().Format("15:04:05"))
+		fmt.Printf(color.Colorize(color.Green, "You: "))
 		var message string = ""
 		message, _ = reader.ReadString('\n')
 		message = str.Trim(message, "\n")
