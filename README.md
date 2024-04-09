@@ -1,3 +1,3 @@
 # Chat App
 
-A simple chat app built on golang using socket programming.
+A simple chat app built on golang using socket programming with CLI.
