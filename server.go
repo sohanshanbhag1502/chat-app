@@ -53,9 +53,9 @@ func main() {
 				Info: "USERNAME_TAKEN"}))
 				if err != nil {
 					fmt.Println(err)
-					client.conn.Close()
 					return
 				}
+				client.conn.Close()
 				continue
 			}else{
 				clients[hosts[0]] = client
