@@ -48,16 +48,16 @@ func main() {
 			hosts[1] = str.Trim(hosts[1], " ")
 			client = Client{self: hosts[0], conn: conn, other: hosts[1]}
 			_, exists := clients[hosts[0]]
-			if (exists){
-				_, err := client.conn.Write(Serialize(Message{Msg: "", 
-				Info: "USERNAME_TAKEN"}))
+			if exists {
+				_, err := client.conn.Write(Serialize(Message{Msg: "",
+					Info: "USERNAME_TAKEN"}))
 				if err != nil {
 					fmt.Println(err)
 					return
 				}
 				client.conn.Close()
 				continue
-			}else{
+			} else {
 				clients[hosts[0]] = client
 				fmt.Println("Accepted Connection from", hosts[0])
 			}
@@ -107,8 +107,8 @@ func handleClient(client Client) {
 			if len(msgchan) != 10 {
 				msgchan <- msg.Msg
 			} else {
-				_, err := client.conn.Write(Serialize(Message{Msg: "", 
-				Info: "CLIENT_NOT_CONN"}))
+				_, err := client.conn.Write(Serialize(Message{Msg: "",
+					Info: "CLIENT_NOT_CONN"}))
 				if err != nil {
 					fmt.Println(err)
 					return
@@ -117,7 +117,7 @@ func handleClient(client Client) {
 		} else {
 			otherconn := value.conn
 			for len(msgchan) != 0 {
-				_, err := otherconn.Write(Serialize(Message{Msg: <-msgchan, 
+				_, err := otherconn.Write(Serialize(Message{Msg: <-msgchan,
 					Info: ""}))
 				if err != nil {
 					fmt.Println(err)
@@ -129,8 +129,8 @@ func handleClient(client Client) {
 				fmt.Println(err)
 				return
 			}
-			_, err = client.conn.Write(Serialize(Message{Msg: "", 
-			Info: "SUCCESS"}))
+			_, err = client.conn.Write(Serialize(Message{Msg: "",
+				Info: "SUCCESS"}))
 			if err != nil {
 				fmt.Println(err)
 				return

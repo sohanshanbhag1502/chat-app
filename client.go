@@ -81,14 +81,14 @@ func main() {
 				os.Exit(2)
 			}
 			if msg.Info == "CLIENT_NOT_CONN" {
-				fmt.Println("Recipient client not connected.")
+				fmt.Printf("\b\b\b\b\b")
+				fmt.Println(color.Colorize(color.Red, "You can only send up to 10 messages when client in disconnected."))
 			} else if msg.Info == "SUCCESS" {
 				continue
 			} else {
 				fmt.Printf("\b\b\b\b\b")
 				fmt.Printf(color.Colorize(color.Cyan, time.Now().Format("15:04:05"))+" - "+color.Colorize(color.Yellow, recipient)+": %s\n", msg.Msg)
 				fmt.Printf(color.Colorize(color.Blue, "You: "))
-				// fmt.Printf("%s You: ", time.Now().Format("15:04:05"))
 			}
 		}
 	}()
@@ -108,7 +108,7 @@ func main() {
 		var message string = ""
 		message, _ = reader.ReadString('\n')
 		fmt.Printf("\033[1A\033[K")
-		fmt.Printf(color.Colorize(color.Green, time.Now().Format("15:04:05")+color.Colorize(color.Blue, " You: ")) + message)
+		fmt.Printf(color.Colorize(color.Green, time.Now().Format("15:04:05")+color.Colorize(color.Blue, " - You: ")) + message)
 		message = str.Trim(message, "\n")
 		conn.Write(Serialize(Message{Msg: message, Info: ""}))
 	}
