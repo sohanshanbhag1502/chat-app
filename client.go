@@ -96,10 +96,11 @@ func main() {
 
 	for {
 		reader := bufio.NewReader(os.Stdin)
-		// fmt.Printf("%s You: ", time.Now().Format("15:04:05"))
 		fmt.Printf(color.Colorize(color.Green, "You: "))
 		var message string = ""
 		message, _ = reader.ReadString('\n')
+		fmt.Printf("\033[1A\033[K")
+		fmt.Printf(color.Colorize(color.Green, time.Now().Format("15:04:05")+" You: ")+message)
 		message = str.Trim(message, "\n")
 		conn.Write(Serialize(Message{Msg: message, Info: ""}))
 	}

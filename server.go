@@ -95,7 +95,8 @@ func handleClient(client Client) {
 			if len(msgchan) != 10 {
 				msgchan <- msg.Msg
 			} else {
-				_, err := client.conn.Write(Serialize(Message{Msg: "", Info: "CLIENT_NOT_CONN"}))
+				_, err := client.conn.Write(Serialize(Message{Msg: "", 
+				Info: "CLIENT_NOT_CONN"}))
 				if err != nil {
 					fmt.Println(err)
 					return
@@ -104,7 +105,8 @@ func handleClient(client Client) {
 		} else {
 			otherconn := value.conn
 			for len(msgchan) != 0 {
-				_, err := otherconn.Write(Serialize(Message{Msg: <-msgchan, Info: ""}))
+				_, err := otherconn.Write(Serialize(Message{Msg: <-msgchan, 
+					Info: ""}))
 				if err != nil {
 					fmt.Println(err)
 					return
@@ -115,7 +117,8 @@ func handleClient(client Client) {
 				fmt.Println(err)
 				return
 			}
-			_, err = client.conn.Write(Serialize(Message{Msg: "", Info: "SUCCESS"}))
+			_, err = client.conn.Write(Serialize(Message{Msg: "", 
+			Info: "SUCCESS"}))
 			if err != nil {
 				fmt.Println(err)
 				return
