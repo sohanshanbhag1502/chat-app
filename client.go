@@ -37,14 +37,14 @@ func DeSerialize(obj []byte) Message {
 
 func main() {
 
-	var conn, err = net.Dial("tcp", "localhost:64000")
+	var conn, err = net.Dial("tcp", "10.5.25.175:64000")
 	if err != nil {
 		fmt.Println("Error connecting to server:", err)
 		return
 	}
 	defer conn.Close()
 
-	fmt.Println("Connected to localhost:64000")
+	fmt.Println("Connected to 10.5.25.175:64000")
 
 	name := ""
 	fmt.Print("Enter your name: ")
@@ -79,7 +79,7 @@ func main() {
 				// fmt.Printf("\b\b\b\b\b\b\b\b\b\b\b\b\b")
 				fmt.Printf("\b\b\b\b\b")
 				fmt.Printf(color.Colorize(color.Cyan, time.Now().Format("15:04:05"))+" - "+color.Colorize(color.Yellow, recipient)+": %s\n", msg.Msg)
-				fmt.Printf(color.Colorize(color.Green, "You: "))
+				fmt.Printf(color.Colorize(color.Blue, "You: "))
 				// fmt.Printf("%s You: ", time.Now().Format("15:04:05"))
 			}
 		}
@@ -100,7 +100,7 @@ func main() {
 		var message string = ""
 		message, _ = reader.ReadString('\n')
 		fmt.Printf("\033[1A\033[K")
-		fmt.Printf(color.Colorize(color.Green, time.Now().Format("15:04:05")+" You: ")+message)
+		fmt.Printf(color.Colorize(color.Green, time.Now().Format("15:04:05")+color.Colorize(color.Blue," You: "))+message)
 		message = str.Trim(message, "\n")
 		conn.Write(Serialize(Message{Msg: message, Info: ""}))
 	}
