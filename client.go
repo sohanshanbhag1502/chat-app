@@ -96,7 +96,7 @@ func main() {
 
 	for {
 		reader := bufio.NewReader(os.Stdin)
-		fmt.Printf(color.Colorize(color.Green, "You: "))
+		fmt.Printf(color.Colorize(color.Blue, "You: "))
 		var message string = ""
 		message, _ = reader.ReadString('\n')
 		fmt.Printf("\033[1A\033[K")
