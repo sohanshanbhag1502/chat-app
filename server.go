@@ -21,12 +21,12 @@ type Message struct {
 var clients = make(map[string]Client)
 
 func main() {
-	ln, err := net.Listen("tcp", "localhost:5000")
+	ln, err := net.Listen("tcp", "localhost:64000")
 	if err != nil {
 		fmt.Println(err)
 		return
 	} else {
-		fmt.Println("Server listening on localhost:5000")
+		fmt.Println("Server listening on localhost:64000")
 	}
 
 	for {

@@ -37,14 +37,14 @@ func DeSerialize(obj []byte) Message {
 
 func main() {
 
-	var conn, err = net.Dial("tcp", "localhost:5000")
+	var conn, err = net.Dial("tcp", "localhost:64000")
 	if err != nil {
 		fmt.Println("Error connecting to server:", err)
 		return
 	}
 	defer conn.Close()
 
-	fmt.Println("Connected to localhost:5000")
+	fmt.Println("Connected to localhost:64000")
 
 	name := ""
 	fmt.Print("Enter your name: ")
@@ -78,7 +78,7 @@ func main() {
 			} else {
 				// fmt.Printf("\b\b\b\b\b\b\b\b\b\b\b\b\b")
 				fmt.Printf("\b\b\b\b\b")
-				fmt.Printf(color.Colorize(color.Red, time.Now().Format("15:04:05"))+"- "+color.Colorize(color.Yellow, recipient)+": %s\n", msg.Msg)
+				fmt.Printf(color.Colorize(color.Cyan, time.Now().Format("15:04:05"))+" - "+color.Colorize(color.Yellow, recipient)+": %s\n", msg.Msg)
 				fmt.Printf(color.Colorize(color.Green, "You: "))
 				// fmt.Printf("%s You: ", time.Now().Format("15:04:05"))
 			}
