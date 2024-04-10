@@ -53,6 +53,7 @@ func main() {
 				Info: "USERNAME_TAKEN"}))
 				if err != nil {
 					fmt.Println(err)
+					client.conn.Close()
 					return
 				}
 				continue

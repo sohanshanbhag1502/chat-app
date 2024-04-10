@@ -73,7 +73,7 @@ func main() {
 			msg = DeSerialize(buf[:recv_len])
 			if msg.Info == "USERNAME_TAKEN" {
 				fmt.Println("Username already taken.")
-				
+				return
 			}
 			if msg.Info == "CLIENT_NOT_CONN" {
 				fmt.Println("Recipient client not connected.")
