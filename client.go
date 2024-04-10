@@ -76,7 +76,6 @@ func main() {
 			} else if msg.Info == "SUCCESS" {
 				continue
 			} else {
-				// fmt.Printf("\b\b\b\b\b\b\b\b\b\b\b\b\b")
 				fmt.Printf("\b\b\b\b\b")
 				fmt.Printf(color.Colorize(color.Cyan, time.Now().Format("15:04:05"))+" - "+color.Colorize(color.Yellow, recipient)+": %s\n", msg.Msg)
 				fmt.Printf(color.Colorize(color.Blue, "You: "))
