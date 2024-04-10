@@ -26,7 +26,7 @@ func main() {
 		fmt.Println(err)
 		return
 	} else {
-		fmt.Println("Server listening on localhost:64000")
+		fmt.Println("Server listening on 10.5.25.175:64000")
 	}
 
 	for {
@@ -47,8 +47,19 @@ func main() {
 			hosts[0] = str.Trim(hosts[0], " ")
 			hosts[1] = str.Trim(hosts[1], " ")
 			client = Client{self: hosts[0], conn: conn, other: hosts[1]}
-			clients[hosts[0]] = client
-			fmt.Println("Accepted Connection from", hosts[0])
+			_, exists := clients[hosts[0]]
+			if (exists){
+				_, err := client.conn.Write(Serialize(Message{Msg: "", 
+				Info: "USERNAME_TAKEN"}))
+				if err != nil {
+					fmt.Println(err)
+					return
+				}
+				continue
+			}else{
+				clients[hosts[0]] = client
+				fmt.Println("Accepted Connection from", hosts[0])
+			}
 		}
 
 		go handleClient(client)
