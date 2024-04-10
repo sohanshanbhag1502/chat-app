@@ -10,6 +10,7 @@ import (
 	str "strings"
 	"syscall"
 	"time"
+
 	"github.com/TwiN/go-color"
 )
 
@@ -72,8 +73,9 @@ func main() {
 			}
 			msg = DeSerialize(buf[:recv_len])
 			if msg.Info == "USERNAME_TAKEN" {
+				fmt.Printf("\b\b\b\b\b")
 				fmt.Println("Username already taken.")
-				return
+				os.Exit(2)
 			}
 			if msg.Info == "CLIENT_NOT_CONN" {
 				fmt.Println("Recipient client not connected.")
@@ -103,7 +105,7 @@ func main() {
 		var message string = ""
 		message, _ = reader.ReadString('\n')
 		fmt.Printf("\033[1A\033[K")
-		fmt.Printf(color.Colorize(color.Green, time.Now().Format("15:04:05")+color.Colorize(color.Blue," You: "))+message)
+		fmt.Printf(color.Colorize(color.Green, time.Now().Format("15:04:05")+color.Colorize(color.Blue, " You: ")) + message)
 		message = str.Trim(message, "\n")
 		conn.Write(Serialize(Message{Msg: message, Info: ""}))
 	}
