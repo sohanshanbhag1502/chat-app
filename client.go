@@ -73,8 +73,11 @@ func main() {
 			}
 			msg = DeSerialize(buf[:recv_len])
 			if msg.Info == "USERNAME_TAKEN" {
+				fmt.Printf("\033[1A\033[K")
+				fmt.Printf("\033[1A\033[K")
+
 				fmt.Printf("\b\b\b\b\b")
-				fmt.Println("Username already taken.")
+				fmt.Println(color.Colorize(color.Red, "Username already taken."))
 				os.Exit(2)
 			}
 			if msg.Info == "CLIENT_NOT_CONN" {
