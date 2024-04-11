@@ -69,6 +69,7 @@ func main() {
 			buf := make([]byte, 2048)
 			recv_len, err := conn.Read(buf)
 			if err != nil {
+				fmt.Println("Error recieving message:", err)
 				return
 			}
 			msg = DeSerialize(buf[:recv_len])
@@ -109,6 +110,10 @@ func main() {
 		fmt.Printf(color.Colorize(color.Green, time.Now().Format("15:04")+color.Colorize(color.Blue, " - You: ")) + message)
 		message = str.Trim(message, "\n")
 		message = str.Trim(message, "\r")
-		conn.Write(Serialize(Message{Msg: message, Info: "", Time_stmp: time.Now().Format("15:04")}))
+		_, err := conn.Write(Serialize(Message{Msg: message, Info: "", Time_stmp: time.Now().Format("15:04")}))
+		if (err != nil) {
+			fmt.Println("Error sending message:", err)
+			return
+		}
 	}
 }
