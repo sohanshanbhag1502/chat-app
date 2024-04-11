@@ -16,8 +16,9 @@ type Client struct {
 }
 
 type Message struct {
-	Msg  string `json:"Msg"`
-	Info string `json:"Info"`
+	Msg       string `json:"Msg"`
+	Info      string `json:"Info"`
+	Time_stmp string `json:"Time_stmp"`
 }
 
 var clients = make(map[string]Client)
@@ -54,7 +55,7 @@ func main() {
 			_, exists := clients[hosts[0]]
 			if exists {
 				_, err := client.conn.Write(Serialize(Message{Msg: "",
-					Info: "USERNAME_TAKEN"}))
+					Info: "USERNAME_TAKEN", Time_stmp: ""}))
 				if err != nil {
 					fmt.Println(err)
 					return
@@ -90,14 +91,14 @@ func DeSerialize(obj []byte) Message {
 }
 
 func sendQueuedMessages(client Client) {
-	value, exists:= clients[client.other]
-	if (exists) {
-		if (len(value.queue)!=0){
-			for (len(value.queue) != 0) {
+	value, exists := clients[client.other]
+	if exists {
+		if len(value.queue) != 0 {
+			for len(value.queue) != 0 {
 				_, err := client.conn.Write(
-					Serialize(Message{Msg: <-value.queue, Info: ""}))
+					Serialize(Message{Msg: <-value.queue, Info: "", Time_stmp: time.Now().Format("15:04")}))
 				time.Sleep(1 * time.Second)
-				if (err != nil) {
+				if err != nil {
 					fmt.Println(err)
 					break
 				}
@@ -128,7 +129,7 @@ func handleClient(client Client) {
 				client.queue <- msg.Msg
 			} else {
 				_, err := client.conn.Write(Serialize(Message{Msg: "",
-					Info: "CLIENT_NOT_CONN"}))
+					Info: "CLIENT_NOT_CONN", Time_stmp: ""}))
 				if err != nil {
 					fmt.Println(err)
 					return
@@ -138,7 +139,7 @@ func handleClient(client Client) {
 			otherconn := value.conn
 			for len(client.queue) != 0 {
 				_, err := otherconn.Write(Serialize(Message{Msg: <-client.queue,
-					Info: ""}))
+					Info: "", Time_stmp: time.Now().Format("15:04")}))
 				if err != nil {
 					fmt.Println(err)
 					return
@@ -150,7 +151,7 @@ func handleClient(client Client) {
 				return
 			}
 			_, err = client.conn.Write(Serialize(Message{Msg: "",
-				Info: "SUCCESS"}))
+				Info: "SUCCESS", Time_stmp: ""}))
 			if err != nil {
 				fmt.Println(err)
 				return
