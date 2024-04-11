@@ -21,16 +21,18 @@ type Client struct {
 	queue chan Message
 }
 
+var ip_port = "localhost:5555"
+
 var clients = make(map[string]Client)
 var msgsend = make(chan string)
 
 func main() {
-	ln, err := net.Listen("tcp", "localhost:5555")
+	ln, err := net.Listen("tcp", ip_port)
 	if err != nil {
 		fmt.Println(err)
 		return
 	} else {
-		fmt.Println("Server listening on localhost:5555")
+		fmt.Print("Server listening on " + ip_port + "\n")
 	}
 
 	for {
