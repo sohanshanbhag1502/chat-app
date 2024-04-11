@@ -42,7 +42,7 @@ func DeSerialize(obj []byte) Message {
 
 func main() {
 	os_windows := false
-	os_windows = runtime.GOOS == "windows"
+	os_windows = runtime.GOOS=="windows"
 
 	var conn, err = net.Dial("tcp", ip_port)
 	if err != nil {
@@ -98,7 +98,8 @@ func main() {
 		}
 	}()
 
-	if !os_windows {
+	if (!os_windows) {
+		fmt.Println("Running...")
 		c := make(chan os.Signal)
 		signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 		go func() {
@@ -113,16 +114,14 @@ func main() {
 		reader := bufio.NewReader(os.Stdin)
 		fmt.Printf(color.Colorize(color.Blue, "You: "))
 		var message string = ""
-		message, _ = reader.ReadString('\n')
+		message, err = reader.ReadString('\n')
 
-		if os_windows {
-			if err != nil {
-				fmt.Println("")
-				fmt.Printf("\033[1A\033[K")
-				fmt.Println("\nClosed Connection")
-				conn.Write(Serialize(Message{Msg: "", Info: "CLOSE", Time_stmp: ""}))
-				return
-			}
+		if (os_windows && err != nil) {
+			fmt.Println("")
+			fmt.Printf("\033[1A\033[K")
+			fmt.Println("\nClosed Connection")
+			conn.Write(Serialize(Message{Msg: "", Info: "CLOSE", Time_stmp: ""}))
+			return
 		}
 		fmt.Printf("\033[1A\033[K")
 		fmt.Printf(color.Colorize(color.Green, time.Now().Format("15:04")+color.Colorize(color.Blue, " - You: ")) + message)
