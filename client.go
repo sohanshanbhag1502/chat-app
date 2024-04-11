@@ -6,11 +6,12 @@ import (
 	"fmt"
 	"net"
 	"os"
-	str "strings"
-	"time"
 	"os/signal"
-	"syscall"
 	"runtime"
+	str "strings"
+	"syscall"
+	"time"
+
 	"github.com/TwiN/go-color"
 )
 
@@ -40,6 +41,8 @@ func DeSerialize(obj []byte) Message {
 }
 
 func main() {
+	os_windows := false
+	os_windows = runtime.GOOS == "windows"
 
 	var conn, err = net.Dial("tcp", ip_port)
 	if err != nil {
@@ -95,30 +98,32 @@ func main() {
 		}
 	}()
 
-	c := make(chan os.Signal)
-	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
-	go func() {
-		<-c
-		fmt.Println("\nExiting...")
-		conn.Write(Serialize(Message{Msg: "", Info: "CLOSE",Time_stmp: ""}))
-		os.Exit(1)
-	}()
-	os_name := runtime.GOOS
-	fmt.Println("Operating system:", os_name)
+	if !os_windows {
+		c := make(chan os.Signal)
+		signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+		go func() {
+			<-c
+			fmt.Println("\nClosed Connection...")
+			conn.Write(Serialize(Message{Msg: "", Info: "CLOSE", Time_stmp: ""}))
+			os.Exit(1)
+		}()
+	}
+
 	for {
 		reader := bufio.NewReader(os.Stdin)
 		fmt.Printf(color.Colorize(color.Blue, "You: "))
 		var message string = ""
 		message, _ = reader.ReadString('\n')
 
-		// fmt.Println(err)
-		// if err != nil {
-		// 	fmt.Println("")
-		// 	fmt.Printf("\033[1A\033[K")
-		// 	fmt.Println("\nClosed Connection")
-		// 	conn.Write(Serialize(Message{Msg: "", Info: "CLOSE", Time_stmp: ""}))
-		// 	return
-		// }
+		if os_windows {
+			if err != nil {
+				fmt.Println("")
+				fmt.Printf("\033[1A\033[K")
+				fmt.Println("\nClosed Connection")
+				conn.Write(Serialize(Message{Msg: "", Info: "CLOSE", Time_stmp: ""}))
+				return
+			}
+		}
 		fmt.Printf("\033[1A\033[K")
 		fmt.Printf(color.Colorize(color.Green, time.Now().Format("15:04")+color.Colorize(color.Blue, " - You: ")) + message)
 		message = str.Trim(message, "\n")
