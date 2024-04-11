@@ -6,11 +6,8 @@ import (
 	"fmt"
 	"net"
 	"os"
-	"os/signal"
 	str "strings"
-	"syscall"
 	"time"
-
 	"github.com/TwiN/go-color"
 )
 
@@ -45,7 +42,7 @@ func main() {
 	}
 	defer conn.Close()
 
-	fmt.Println("Connected to localhost:5555")
+	fmt.Println("Connected to localhost:5555\n")
 
 	name := ""
 	fmt.Print("Enter your name: ")
@@ -60,8 +57,7 @@ func main() {
 		return
 	}
 
-	fmt.Println("Connected to", recipient)
-	fmt.Println("Press Ctrl+C to quit")
+	fmt.Println("\nPress Ctrl+C to quit\n")
 
 	go func() {
 		for {
@@ -93,24 +89,21 @@ func main() {
 		}
 	}()
 
-	c := make(chan os.Signal)
-	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
-	go func() {
-		<-c
-		fmt.Println("\nExiting...")
-		conn.Write(Serialize(Message{Msg: "", Info: "CLOSE"}))
-		os.Exit(1)
-	}()
-
 	for {
 		reader := bufio.NewReader(os.Stdin)
 		fmt.Printf(color.Colorize(color.Blue, "You: "))
 		var message string = ""
-		message, _ = reader.ReadString('\n')
+		message, err = reader.ReadString('\n')
+		if (err!=nil){
+			fmt.Println("")
+			fmt.Printf("\033[1A\033[K")
+			fmt.Println("\nClosed Connection")
+			conn.Write(Serialize(Message{Msg: "", Info: "CLOSE"}))
+			return
+		}
 		fmt.Printf("\033[1A\033[K")
 		fmt.Printf(color.Colorize(color.Green, time.Now().Format("15:04:05")+color.Colorize(color.Blue, " - You: ")) + message)
 		message = str.Trim(message, "\n")
 		conn.Write(Serialize(Message{Msg: message, Info: ""}))
 	}
-
 }
