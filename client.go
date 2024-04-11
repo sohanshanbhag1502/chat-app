@@ -8,6 +8,8 @@ import (
 	"os"
 	str "strings"
 	"time"
+	"os/signal"
+	"syscall"
 
 	"github.com/TwiN/go-color"
 )
@@ -76,7 +78,6 @@ func main() {
 			if msg.Info == "USERNAME_TAKEN" {
 				fmt.Printf("\033[1A\033[K")
 				fmt.Printf("\033[1A\033[K")
-
 				fmt.Printf("\b\b\b\b\b")
 				fmt.Println(color.Colorize(color.Red, "Username already taken."))
 				os.Exit(2)
@@ -93,19 +94,29 @@ func main() {
 			}
 		}
 	}()
+	
+	c := make(chan os.Signal)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		<-c
+		fmt.Println("\nExiting...")
+		conn.Write(Serialize(Message{Msg: "", Info: "CLOSE",Time_stmp: ""}))
+		os.Exit(1)
+	}()
 
 	for {
 		reader := bufio.NewReader(os.Stdin)
 		fmt.Printf(color.Colorize(color.Blue, "You: "))
 		var message string = ""
-		message, err = reader.ReadString('\n')
-		if err != nil {
-			fmt.Println("")
-			fmt.Printf("\033[1A\033[K")
-			fmt.Println("\nClosed Connection")
-			conn.Write(Serialize(Message{Msg: "", Info: "CLOSE", Time_stmp: ""}))
-			return
-		}
+		message, _ = reader.ReadString('\n')
+		// fmt.Println(err)
+		// if err != nil {
+		// 	fmt.Println("")
+		// 	fmt.Printf("\033[1A\033[K")
+		// 	fmt.Println("\nClosed Connection")
+		// 	conn.Write(Serialize(Message{Msg: "", Info: "CLOSE", Time_stmp: ""}))
+		// 	return
+		// }
 		fmt.Printf("\033[1A\033[K")
 		fmt.Printf(color.Colorize(color.Green, time.Now().Format("15:04")+color.Colorize(color.Blue, " - You: ")) + message)
 		message = str.Trim(message, "\n")
