@@ -10,7 +10,7 @@ import (
 	"time"
 	"os/signal"
 	"syscall"
-
+	"runtime"
 	"github.com/TwiN/go-color"
 )
 
@@ -94,7 +94,7 @@ func main() {
 			}
 		}
 	}()
-	
+
 	c := make(chan os.Signal)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 	go func() {
@@ -103,12 +103,14 @@ func main() {
 		conn.Write(Serialize(Message{Msg: "", Info: "CLOSE",Time_stmp: ""}))
 		os.Exit(1)
 	}()
-
+	os_name := runtime.GOOS
+	fmt.Println("Operating system:", os_name)
 	for {
 		reader := bufio.NewReader(os.Stdin)
 		fmt.Printf(color.Colorize(color.Blue, "You: "))
 		var message string = ""
 		message, _ = reader.ReadString('\n')
+
 		// fmt.Println(err)
 		// if err != nil {
 		// 	fmt.Println("")
