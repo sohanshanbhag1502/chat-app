@@ -38,14 +38,14 @@ func DeSerialize(obj []byte) Message {
 
 func main() {
 
-	var conn, err = net.Dial("tcp", "10.5.25.175:64000")
+	var conn, err = net.Dial("tcp", "localhost:5555")
 	if err != nil {
 		fmt.Println("Error connecting to server:", err)
 		return
 	}
 	defer conn.Close()
 
-	fmt.Println("Connected to 10.5.25.175:64000")
+	fmt.Println("Connected to localhost:5555")
 
 	name := ""
 	fmt.Print("Enter your name: ")
