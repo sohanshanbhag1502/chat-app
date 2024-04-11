@@ -5,12 +5,14 @@ import (
 	"fmt"
 	"net"
 	str "strings"
+	"time"
 )
 
 type Client struct {
 	self  string
 	conn  net.Conn
 	other string
+	queue chan string
 }
 
 type Message struct {
@@ -19,6 +21,7 @@ type Message struct {
 }
 
 var clients = make(map[string]Client)
+var msgsend = make(chan string)
 
 func main() {
 	ln, err := net.Listen("tcp", "localhost:5555")
@@ -47,6 +50,7 @@ func main() {
 			hosts[0] = str.Trim(hosts[0], " ")
 			hosts[1] = str.Trim(hosts[1], " ")
 			client = Client{self: hosts[0], conn: conn, other: hosts[1]}
+			client.queue = make(chan string, 10)
 			_, exists := clients[hosts[0]]
 			if exists {
 				_, err := client.conn.Write(Serialize(Message{Msg: "",
@@ -60,6 +64,7 @@ func main() {
 			} else {
 				clients[hosts[0]] = client
 				fmt.Println("Accepted Connection from", hosts[0])
+				go sendQueuedMessages(client)
 			}
 		}
 
@@ -84,10 +89,25 @@ func DeSerialize(obj []byte) Message {
 	return msg
 }
 
+func sendQueuedMessages(client Client) {
+	value, exists:= clients[client.other]
+	if (exists) {
+		if (len(value.queue)!=0){
+			for (len(value.queue) != 0) {
+				_, err := client.conn.Write(
+					Serialize(Message{Msg: <-value.queue, Info: ""}))
+				time.Sleep(1 * time.Second)
+				if (err != nil) {
+					fmt.Println(err)
+					break
+				}
+			}
+		}
+	}
+}
+
 func handleClient(client Client) {
 	defer client.conn.Close()
-
-	msgchan := make(chan string, 10)
 
 	for {
 		buf := make([]byte, 2048)
@@ -104,8 +124,8 @@ func handleClient(client Client) {
 			client.conn.Close()
 			return
 		} else if !exists {
-			if len(msgchan) != 10 {
-				msgchan <- msg.Msg
+			if len(client.queue) != 10 {
+				client.queue <- msg.Msg
 			} else {
 				_, err := client.conn.Write(Serialize(Message{Msg: "",
 					Info: "CLIENT_NOT_CONN"}))
@@ -116,8 +136,8 @@ func handleClient(client Client) {
 			}
 		} else {
 			otherconn := value.conn
-			for len(msgchan) != 0 {
-				_, err := otherconn.Write(Serialize(Message{Msg: <-msgchan,
+			for len(client.queue) != 0 {
+				_, err := otherconn.Write(Serialize(Message{Msg: <-client.queue,
 					Info: ""}))
 				if err != nil {
 					fmt.Println(err)

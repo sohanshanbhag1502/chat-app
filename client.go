@@ -104,6 +104,7 @@ func main() {
 		fmt.Printf("\033[1A\033[K")
 		fmt.Printf(color.Colorize(color.Green, time.Now().Format("15:04:05")+color.Colorize(color.Blue, " - You: ")) + message)
 		message = str.Trim(message, "\n")
+		message = str.Trim(message, "\r")
 		conn.Write(Serialize(Message{Msg: message, Info: ""}))
 	}
 }
