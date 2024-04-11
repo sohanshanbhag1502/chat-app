@@ -21,7 +21,7 @@ type Client struct {
 	queue chan Message
 }
 
-var ip_port = "localhost:64000"
+var ip_port = "10.5.25.104:64000"
 
 var clients = make(map[string]Client)
 var msgsend = make(chan string)
@@ -68,10 +68,9 @@ func main() {
 				clients[hosts[0]] = client
 				fmt.Println("Accepted Connection from", hosts[0])
 				go sendQueuedMessages(client)
+				go handleClient(client)
 			}
 		}
-
-		go handleClient(client)
 	}
 }
 
@@ -130,7 +129,7 @@ func handleClient(client Client) {
 				client.queue <- msg
 			} else {
 				_, err := client.conn.Write(Serialize(Message{Msg: "",
-					Info: "CLIENT_NOT_CONN", Time_stmp: ""}))
+					Info: "CLIENT_NOT_CONN_BUFFER_FULL", Time_stmp: ""}))
 				if err != nil {
 					fmt.Println(err)
 					return

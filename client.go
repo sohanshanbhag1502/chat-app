@@ -12,7 +12,7 @@ import (
 	"github.com/TwiN/go-color"
 )
 
-var ip_port = "localhost:64000"
+var ip_port = "10.5.25.104:64000"
 
 type Message struct {
 	Msg       string `json:"Msg"`
@@ -81,7 +81,7 @@ func main() {
 				fmt.Println(color.Colorize(color.Red, "Username already taken."))
 				os.Exit(2)
 			}
-			if msg.Info == "CLIENT_NOT_CONN" {
+			if msg.Info == "CLIENT_NOT_CONN_BUFFER_FULL" {
 				fmt.Printf("\b\b\b\b\b")
 				fmt.Println(color.Colorize(color.Red, "You can only send up to 10 messages when client in disconnected."))
 			} else if msg.Info == "SUCCESS" {
@@ -111,7 +111,7 @@ func main() {
 		message = str.Trim(message, "\n")
 		message = str.Trim(message, "\r")
 		_, err := conn.Write(Serialize(Message{Msg: message, Info: "", Time_stmp: time.Now().Format("15:04")}))
-		if (err != nil) {
+		if err != nil {
 			fmt.Println("Error sending message:", err)
 			return
 		}
