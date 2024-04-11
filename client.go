@@ -65,7 +65,7 @@ func main() {
 			buf := make([]byte, 2048)
 			recv_len, err := conn.Read(buf)
 			if err != nil {
-				fmt.Println("Error decoding message:", err)
+				return
 			}
 			msg = DeSerialize(buf[:recv_len])
 			if msg.Info == "USERNAME_TAKEN" {
