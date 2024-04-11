@@ -123,6 +123,7 @@ func handleClient(client Client) {
 			fmt.Println("Closed Connection from", client.self)
 			delete(clients, client.self)
 			client.conn.Close()
+			fmt.Println(clients)
 			return
 		} else if !exists {
 			if len(client.queue) != 10 {
