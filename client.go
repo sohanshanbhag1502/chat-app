@@ -14,6 +14,7 @@ import (
 type Message struct {
 	Msg  string `json:"Msg"`
 	Info string `json:"Info"`
+	Time_stmp string `json:"Time_stmp"` 
 }
 
 func Serialize(msg Message) []byte {
@@ -98,13 +99,13 @@ func main() {
 			fmt.Println("")
 			fmt.Printf("\033[1A\033[K")
 			fmt.Println("\nClosed Connection")
-			conn.Write(Serialize(Message{Msg: "", Info: "CLOSE"}))
+			conn.Write(Serialize(Message{Msg: "", Info: "CLOSE",Time_stmp:""))
 			return
 		}
 		fmt.Printf("\033[1A\033[K")
-		fmt.Printf(color.Colorize(color.Green, time.Now().Format("15:04:05")+color.Colorize(color.Blue, " - You: ")) + message)
+		fmt.Printf(color.Colorize(color.Green, time.Now().Format("15:04")+color.Colorize(color.Blue, " - You: ")) + message)
 		message = str.Trim(message, "\n")
 		message = str.Trim(message, "\r")
-		conn.Write(Serialize(Message{Msg: message, Info: ""}))
+		conn.Write(Serialize(Message{Msg: message, Info: "", Time_stmp :time.Now().Format("15:04")}))
 	}
 }
