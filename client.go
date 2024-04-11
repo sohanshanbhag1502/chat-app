@@ -99,7 +99,7 @@ func main() {
 			fmt.Println("")
 			fmt.Printf("\033[1A\033[K")
 			fmt.Println("\nClosed Connection")
-			conn.Write(Serialize(Message{Msg: "", Info: "CLOSE",Time_stmp:""))
+			conn.Write(Serialize(Message{Msg: "", Info: "CLOSE",Time_stmp:""}))
 			return
 		}
 		fmt.Printf("\033[1A\033[K")

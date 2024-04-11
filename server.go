@@ -8,17 +8,17 @@ import (
 	"time"
 )
 
-type Client struct {
-	self  string
-	conn  net.Conn
-	other string
-	queue chan string
-}
-
 type Message struct {
 	Msg       string `json:"Msg"`
 	Info      string `json:"Info"`
 	Time_stmp string `json:"Time_stmp"`
+}
+
+type Client struct {
+	self  string
+	conn  net.Conn
+	other string
+	queue chan Message
 }
 
 var clients = make(map[string]Client)
@@ -51,7 +51,7 @@ func main() {
 			hosts[0] = str.Trim(hosts[0], " ")
 			hosts[1] = str.Trim(hosts[1], " ")
 			client = Client{self: hosts[0], conn: conn, other: hosts[1]}
-			client.queue = make(chan string, 10)
+			client.queue = make(chan Message, 10)
 			_, exists := clients[hosts[0]]
 			if exists {
 				_, err := client.conn.Write(Serialize(Message{Msg: "",
@@ -95,8 +95,7 @@ func sendQueuedMessages(client Client) {
 	if exists {
 		if len(value.queue) != 0 {
 			for len(value.queue) != 0 {
-				_, err := client.conn.Write(
-					Serialize(Message{Msg: <-value.queue, Info: "", Time_stmp: time.Now().Format("15:04")}))
+				_, err := client.conn.Write(Serialize(<-value.queue))
 				time.Sleep(1 * time.Second)
 				if err != nil {
 					fmt.Println(err)
@@ -126,7 +125,7 @@ func handleClient(client Client) {
 			return
 		} else if !exists {
 			if len(client.queue) != 10 {
-				client.queue <- msg.Msg
+				client.queue <- msg
 			} else {
 				_, err := client.conn.Write(Serialize(Message{Msg: "",
 					Info: "CLIENT_NOT_CONN", Time_stmp: ""}))
@@ -138,8 +137,7 @@ func handleClient(client Client) {
 		} else {
 			otherconn := value.conn
 			for len(client.queue) != 0 {
-				_, err := otherconn.Write(Serialize(Message{Msg: <-client.queue,
-					Info: "", Time_stmp: time.Now().Format("15:04")}))
+				_, err := otherconn.Write(Serialize(<-client.queue))
 				if err != nil {
 					fmt.Println(err)
 					return
