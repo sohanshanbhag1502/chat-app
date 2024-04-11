@@ -12,7 +12,7 @@ import (
 	"github.com/TwiN/go-color"
 )
 
-var ip_port = "localhost:5555"
+var ip_port = "localhost:64000"
 
 type Message struct {
 	Msg       string `json:"Msg"`
