@@ -88,6 +88,7 @@ func main() {
 			if msg.Info == "CLIENT_NOT_CONN_BUFFER_FULL" {
 				fmt.Printf("\b\b\b\b\b")
 				fmt.Println(color.Colorize(color.Red, "You can only send up to 10 messages when client in disconnected."))
+				fmt.Printf(color.Colorize(color.Blue, "You: "))
 			} else if msg.Info == "SUCCESS" {
 				continue
 			} else {
