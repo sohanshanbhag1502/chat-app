@@ -15,7 +15,7 @@ import (
 	"github.com/TwiN/go-color"
 )
 
-var ip_port = "10.20.202.240:64000"
+var ip_port = "10.20.200.141:64000"
 
 type Message struct {
 	Msg       string `json:"Msg"`

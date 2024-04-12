@@ -21,7 +21,7 @@ type Client struct {
 	queue chan Message
 }
 
-var ip_port = "10.20.202.240:64000"
+var ip_port = "10.20.200.141:64000"
 
 var clients = make(map[string]Client)
 var msgsend = make(chan string)
