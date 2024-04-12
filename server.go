@@ -6,6 +6,7 @@ import (
 	"net"
 	str "strings"
 	"time"
+	dotenv "github.com/joho/godotenv"
 )
 
 type Message struct {
@@ -21,12 +22,19 @@ type Client struct {
 	queue chan Message
 }
 
-var ip_port = "10.20.200.141:64000"
-
+var ip_port string;
 var clients = make(map[string]Client)
 var msgsend = make(chan string)
 
 func main() {
+	envFile, err := dotenv.Read(".env")
+	if (err != nil) {
+		ip_port = "localhost:8080"
+	} else{
+		ip_port = envFile["HOST"] + ":" + envFile["PORT"]
+	}
+
+
 	ln, err := net.Listen("tcp", ip_port)
 	if err != nil {
 		fmt.Println(err)

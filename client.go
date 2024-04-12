@@ -11,11 +11,11 @@ import (
 	str "strings"
 	"syscall"
 	"time"
-
 	"github.com/TwiN/go-color"
+	dotenv "github.com/joho/godotenv"
 )
 
-var ip_port = "10.20.200.141:64000"
+var ip_port string
 
 type Message struct {
 	Msg       string `json:"Msg"`
@@ -41,10 +41,17 @@ func DeSerialize(obj []byte) Message {
 }
 
 func main() {
+	envFile, err := dotenv.Read(".env")
+	if (err != nil) {
+		ip_port = "localhost:8080"
+	} else{
+		ip_port = envFile["HOST"] + ":" + envFile["PORT"]
+	}
+
 	os_windows := false
 	os_windows = runtime.GOOS=="windows"
 
-	var conn, err = net.Dial("tcp", ip_port)
+	conn, err := net.Dial("tcp", ip_port)
 	if err != nil {
 		fmt.Println("Error connecting to server:", err)
 		return
