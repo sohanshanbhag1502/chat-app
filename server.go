@@ -21,7 +21,7 @@ type Client struct {
 	queue chan Message
 }
 
-var ip_port = "10.5.25.104:64000"
+var ip_port = "10.20.202.240:64000"
 
 var clients = make(map[string]Client)
 var msgsend = make(chan string)
@@ -123,7 +123,6 @@ func handleClient(client Client) {
 			fmt.Println("Closed Connection from", client.self)
 			delete(clients, client.self)
 			client.conn.Close()
-			fmt.Println(clients)
 			return
 		} else if !exists {
 			if len(client.queue) != 10 {

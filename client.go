@@ -15,7 +15,7 @@ import (
 	"github.com/TwiN/go-color"
 )
 
-var ip_port = "10.5.25.104:64000"
+var ip_port = "10.20.202.240:64000"
 
 type Message struct {
 	Msg       string `json:"Msg"`
@@ -74,7 +74,7 @@ func main() {
 			buf := make([]byte, 2048)
 			recv_len, err := conn.Read(buf)
 			if err != nil {
-				fmt.Println("Error recieving message:", err)
+				// fmt.Println("Error recieving message:", err)
 				return
 			}
 			msg = DeSerialize(buf[:recv_len])
