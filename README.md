@@ -3,11 +3,11 @@
 A simple chat app built on Golang using socket programming in CLI.
 
 ## Dependencies:
-- [github.com/TwiN/go-color](github.com/TwiN/go-color)
+- [github.com/TwiN/go-color](https://github.com/TwiN/go-color)
     ```
     go get github.com/TwiN/go-color
     ```
-- [github.com/joho/godotenv](github.com/joho/godotenv)
+- [github.com/joho/godotenv](https://github.com/joho/godotenv)
     ```
     go get github.com/joho/godotenv
     ```
